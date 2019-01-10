@@ -5,7 +5,7 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MqttApplication implements AutoCloseable, MqttCallback {
+public class MqttApplication implements MqttCallback {
     private static final Logger log = LoggerFactory.getLogger(MqttApplication.class);
 
     private MqttConfig config;

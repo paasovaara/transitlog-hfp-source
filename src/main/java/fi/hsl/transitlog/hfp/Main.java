@@ -58,17 +58,16 @@ public class Main {
         MqttConfig mqttConfig = createMqttConfig(config);
 
         log.info("Configurations read, launching the main loop");
-
-        try (MqttApplication app = MqttApplication.newInstance(mqttConfig)) {
-
+        MqttApplication app = null;
+        try {
+            app = MqttApplication.newInstance(mqttConfig);
             MessageProcessor processor = MessageProcessor.newInstance(app);
             log.info("Starting to process messages");
-            //TODO FIX we cannot use app inside try-with-resources without blocking here, otherwise
-            //autocloseable will close itself. now it just seems that paho is unable to close itself
-            //it there's any listeners, which has to be fixed also.
         }
         catch (Exception e) {
             log.error("Exception at main", e);
+            if (app != null)
+                app.close();
         }
 
     }
