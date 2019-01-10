@@ -15,7 +15,7 @@ public class MessageProcessor implements IMqttMessageHandler {
     private static final Logger log = LoggerFactory.getLogger(MessageProcessor.class);
 
     //TODO consider different type such as LinkedList for performance. insertion is cheap in that, how about doing the insert?
-    final ArrayList<MqttMessage> queue;
+    final ArrayList<HfpMessage> queue;
     final int QUEUE_MAX_SIZE = 100000;
     final MessageParser parser = MessageParser.newInstance();
 
@@ -38,14 +38,16 @@ public class MessageProcessor implements IMqttMessageHandler {
             return;
         }
 
-        queue.add(message);
-
+        //HfpMessage hfp = parser.parse(message);
+        HfpMessage hfp = parser.safeParse(message);
+        queue.add(hfp);
+        //queue.add(message);
         if (queue.size() % 1000 == 0) {
             log.debug("Got messages: " + queue.size());
-            log.info(new String(message.getPayload()));
+            //log.info(new String(message.getPayload()));
 
-            HfpMessage hfp = parser.parse(message);
-            log.info(hfp.VP.desi);
+
+            //log.info(hfp.VP.desi);
         }
 
         /*
