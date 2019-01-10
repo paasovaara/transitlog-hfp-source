@@ -61,7 +61,9 @@ public class Main {
         MqttApplication app = null;
         try {
             app = MqttApplication.newInstance(mqttConfig);
-            MessageProcessor processor = MessageProcessor.newInstance(app);
+
+            QueueWriter writer = QueueWriter.newInstance(config);
+            MessageProcessor processor = MessageProcessor.newInstance(app, writer);
             log.info("Starting to process messages");
         }
         catch (Exception e) {
