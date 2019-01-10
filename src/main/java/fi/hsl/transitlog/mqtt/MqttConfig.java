@@ -1,4 +1,6 @@
-package fi.hsl.transitlog.hfp;
+package fi.hsl.transitlog.mqtt;
+
+import fi.hsl.transitlog.mqtt.MqttConfigBuilder;
 
 public class MqttConfig {
 
@@ -8,10 +10,9 @@ public class MqttConfig {
     private String password;
     private String clientId;
     private int maxInflight;
-    private boolean retainMessage;
 
     public MqttConfig(String broker, String mqttTopic, String username, String password,
-                      String clientId, int maxInflight, boolean retainMessage) {
+                      String clientId, int maxInflight) {
 
         this.broker = broker;
         this.mqttTopic = mqttTopic;
@@ -19,7 +20,6 @@ public class MqttConfig {
         this.password = password;
         this.clientId = clientId;
         this.maxInflight = maxInflight;
-        this.retainMessage = retainMessage;
     }
 
     public String getBroker() {
@@ -44,10 +44,6 @@ public class MqttConfig {
 
     public int getMaxInflight() {
         return maxInflight;
-    }
-
-    public boolean getRetainMessage() {
-        return retainMessage;
     }
 
     public static MqttConfigBuilder newBuilder() {

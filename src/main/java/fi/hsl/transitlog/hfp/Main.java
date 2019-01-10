@@ -3,8 +3,9 @@ package fi.hsl.transitlog.hfp;
 import com.typesafe.config.Config;
 import fi.hsl.common.config.ConfigParser;
 import fi.hsl.common.config.ConfigUtils;
-import fi.hsl.common.pulsar.PulsarApplication;
-import fi.hsl.common.pulsar.PulsarApplicationContext;
+import fi.hsl.transitlog.mqtt.MqttApplication;
+import fi.hsl.transitlog.mqtt.MqttConfig;
+import fi.hsl.transitlog.mqtt.MqttConfigBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,7 +16,7 @@ public class Main {
 
     private static final Logger log = LoggerFactory.getLogger(Main.class);
 
-    private static MqttConfig createSinkConfig(Config config) {
+    private static MqttConfig createMqttConfig(Config config) {
         String username = "";
         String password = "";
         try {
@@ -36,8 +37,7 @@ public class Main {
         final String broker = config.getString("mqtt-broker.host");
         final int maxInFlight = config.getInt("mqtt-broker.maxInflight");
         final String topic = config.getString("mqtt-broker.topic");
-        final boolean retainMessage = config.getBoolean("mqtt-broker.retainMessage");
-        log.info("Setting MQTT topic to {} with retain message enabled: {} ", topic, retainMessage);
+        log.info("Setting MQTT topic to {} ", topic);
 
         MqttConfigBuilder configBuilder = MqttConfig.newBuilder()
                 .setBroker(broker)
@@ -45,29 +45,24 @@ public class Main {
                 .setPassword(password)
                 .setClientId(clientId)
                 .setMqttTopic(topic)
-                .setMaxInflight(maxInFlight)
-                .setRetainMessage(retainMessage);
+                .setMaxInflight(maxInFlight);
 
         return configBuilder.build();
     }
 
 
     public static void main(String[] args) {
-        log.info("Launching Pulsar-MQTT-Gateway.");
+        log.info("Launching Transitdata-HFP-Source.");
 
         Config config = ConfigParser.createConfig();
-        MqttConfig sinkConfig = createSinkConfig(config);
+        MqttConfig mqttConfig = createMqttConfig(config);
 
-        log.info("Configurations read, launching Pulsar Application");
+        log.info("Configurations read, launching the main loop");
 
-        try (PulsarApplication app = PulsarApplication.newInstance(config)) {
-            PulsarApplicationContext context = app.getContext();
-            MessageProcessor processor = MessageProcessor.newInstance(sinkConfig, context.getConsumer());
+        try (MqttApplication app = MqttApplication.newInstance(mqttConfig)) {
 
+            MessageProcessor processor = MessageProcessor.newInstance(app);
             log.info("Starting to process messages");
-
-            app.launchWithHandler(processor);
-
         }
         catch (Exception e) {
             log.error("Exception at main", e);

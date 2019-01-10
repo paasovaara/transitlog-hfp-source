@@ -1,4 +1,4 @@
-package fi.hsl.transitlog.hfp;
+package fi.hsl.transitlog.mqtt;
 
 public class MqttConfigBuilder {
 
@@ -8,7 +8,6 @@ public class MqttConfigBuilder {
     private String password;
     private String clientId;
     private int maxInflight;
-    private boolean retainMessage;
 
     public MqttConfigBuilder() {
     }
@@ -43,18 +42,13 @@ public class MqttConfigBuilder {
         return this;
     }
 
-    public MqttConfigBuilder setRetainMessage(boolean retain) {
-        this.retainMessage = retain;
-        return this;
-    }
-
     public MqttConfig build() {
 
         if (broker == null  || mqttTopic == null || username == null || password == null || clientId == null) {
             throw new IllegalArgumentException("Required field not set for MqttConfig");
         }
 
-        return new MqttConfig(broker, mqttTopic, username, password, clientId, maxInflight, retainMessage);
+        return new MqttConfig(broker, mqttTopic, username, password, clientId, maxInflight);
     }
 
 
