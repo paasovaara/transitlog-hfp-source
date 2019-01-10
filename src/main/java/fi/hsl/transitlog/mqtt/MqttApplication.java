@@ -99,6 +99,8 @@ public class MqttApplication implements AutoCloseable, MqttCallback {
         try {
             //Paho doesn't close the connection threads unless we force-close it.
             //mqttClient.unsubscribe(mqttTopic);
+            //mqttClient.disconnect();
+            mqttClient.disconnectForcibly(5000L);
             mqttClient.close(true);
         }
         catch (Exception e) {
