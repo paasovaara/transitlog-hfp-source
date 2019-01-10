@@ -2,6 +2,12 @@ package fi.hsl.transitlog.hfp;
 
 import com.dslplatform.json.CompiledJson;
 import com.dslplatform.json.JsonAttribute;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import java.sql.Date;
+import java.sql.Time;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
 
 // ignore unknown properties (default for objects).
 // to disallow unknown properties in JSON set it to FAIL which will result in exception instead
@@ -16,9 +22,49 @@ public class HfpMessage {
 
     @CompiledJson(onUnknown = CompiledJson.Behavior.IGNORE)
     static class Payload {
-        @JsonAttribute(nullable = false)
+
         public String desi;
 
+        public String dir;
+
+        public Integer oper;
+
+        public Integer veh;
+
+        //See possible use of converter directly to OffsetDateTime
+        //@JsonAttribute(converter = converter.class)
+        @JsonAttribute(nullable = false)
+        public String tst;
+
+        @JsonAttribute(nullable = false)
+        public long tsi;
+
+        public Double spd;
+
+        public Double hdg;
+
+        public Double lat;
+
+        @JsonAttribute(name = "long") //use alternative name in JSON
+        public Double longitude;
+
+        public Double acc;
+
+        public Integer dl;
+
+        public Double odo;
+
+        //Boolean:
+        public Integer drst;
+
+        public Date oday;
+
+        public Integer jrn;
+
+        public Integer line;
+
+        //TODO parse to LocalTime using format %H:%M in 24 hour clock
+        public String start;
     }
 
 }
