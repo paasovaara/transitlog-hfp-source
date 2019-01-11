@@ -82,7 +82,10 @@ GRANT SELECT ON TABLE vehicles TO PUBLIC;
 CREATE INDEX route_id_idx ON vehicles (route_id);
 CREATE INDEX direction_id_idx ON vehicles (direction_id);
 CREATE INDEX journey_start_time_idx ON vehicles (journey_start_time);
+CREATE INDEX unique_vehicle_id_idx ON vehicles (unique_vehicle_id);
 CREATE INDEX oday_idx ON vehicles USING brin (oday);
+CREATE INDEX lat_idx ON vehicles (lat);
+CREATE INDEX long_idx ON vehicles (long);
 
 -- Set up Hasura.
 
