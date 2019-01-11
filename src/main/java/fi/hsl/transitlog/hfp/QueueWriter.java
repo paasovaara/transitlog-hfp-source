@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.*;
+import java.text.NumberFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
@@ -37,8 +38,16 @@ public class QueueWriter {
                 .append("journey_type, is_ongoing, mode,")
                 .append("owner_operator_id, vehicle_number, unique_vehicle_id,")
                 //TODO more fields
-                .append("veh, tst, tsi")
-                .append(") VALUES (?, ?, ?, ?::JOURNEY_TYPE, ?, ?::TRANSPORT_MODE, ?, ?, ?, ?, ?, ?);")
+                .append("desi, dir, oper,")
+                .append("veh, tst, tsi,")
+                .append("spd, hdg, lat,")
+                .append("long, acc, dl,")
+                .append("odo, drst, oday,")
+                .append("jrn, line, start")
+                .append(") VALUES (")
+                .append("?, ?, ?, ?::JOURNEY_TYPE, ?, ?::TRANSPORT_MODE, ?, ?, ?,")
+                .append("?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?")
+                .append(");")
                 .toString();
     }
 
@@ -64,9 +73,24 @@ public class QueueWriter {
                 statement.setInt(8, 1234);
                 statement.setString(9, "1234");
 
-                statement.setInt(10, message.VP.veh);
-                statement.setTimestamp(11, java.sql.Timestamp.valueOf(LocalDateTime.now(ZoneId.of("UTC"))));
-                statement.setLong(12, message.VP.tsi);
+                statement.setString(10, message.VP.desi);
+                statement.setInt(11, safeParseInt(message.VP.dir));
+                statement.setInt(12, message.VP.oper);
+                statement.setInt(13, message.VP.veh);
+                statement.setTimestamp(14, java.sql.Timestamp.valueOf(LocalDateTime.now(ZoneId.of("UTC")))); //TODO get from payload
+                statement.setLong(15, message.VP.tsi);
+                statement.setDouble(16, message.VP.spd);
+                statement.setDouble(17, message.VP.hdg);
+                statement.setDouble(18, message.VP.lat);
+                statement.setDouble(19, message.VP.longitude);
+                statement.setDouble(20, message.VP.acc);
+                statement.setInt(21, message.VP.dl);
+                statement.setDouble(22, message.VP.odo);
+                statement.setBoolean(23, safeParseBoolean(message.VP.drst));
+                statement.setDate(24, message.VP.oday);
+                statement.setInt(25, message.VP.jrn);
+                statement.setInt(26, message.VP.line);
+                statement.setTime(27, safeParseTime(message.VP.start));
 
                 statement.addBatch();
             }
@@ -85,4 +109,38 @@ public class QueueWriter {
         }
     }
 
+    static Integer safeParseInt(String n) {
+        if (n == null || n.isEmpty())
+            return null;
+        else {
+            try {
+                return Integer.parseInt(n);
+            }
+            catch (NumberFormatException e) {
+                log.error("Failed to convert {} to integer", n);
+                return null;
+            }
+        }
+    }
+
+    static Boolean safeParseBoolean(Integer n) {
+        if (n == null)
+            return null;
+        else
+            return n != 0;
+    }
+
+    static Time safeParseTime(String time) {
+        if (time == null)
+            return null;
+        else {
+            try {
+                return Time.valueOf(time + ":00"); // parser requires seconds also.
+            }
+            catch (Exception e) {
+                log.error("Failed to convert {} to java.sql.Time", time);
+                return null;
+            }
+        }
+    }
 }
