@@ -9,6 +9,7 @@ import java.text.NumberFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
+import static java.sql.Types.*;
 
 public class QueueWriter {
     private static final Logger log = LoggerFactory.getLogger(QueueWriter.class);
@@ -73,24 +74,27 @@ public class QueueWriter {
                 statement.setInt(8, 1234);
                 statement.setString(9, "1234");
 
-                statement.setString(10, message.VP.desi);
-                statement.setInt(11, safeParseInt(message.VP.dir));
-                statement.setInt(12, message.VP.oper);
+                //From payload:
+                setNullable(10, message.VP.desi, Types.VARCHAR, statement);
+                setNullable(11, safeParseInt(message.VP.dir), Types.INTEGER, statement);
+                setNullable(12, message.VP.oper, Types.INTEGER, statement);
+
                 statement.setInt(13, message.VP.veh);
                 statement.setTimestamp(14, java.sql.Timestamp.valueOf(LocalDateTime.now(ZoneId.of("UTC")))); //TODO get from payload
                 statement.setLong(15, message.VP.tsi);
-                statement.setDouble(16, message.VP.spd);
-                statement.setDouble(17, message.VP.hdg);
-                statement.setDouble(18, message.VP.lat);
-                statement.setDouble(19, message.VP.longitude);
-                statement.setDouble(20, message.VP.acc);
-                statement.setInt(21, message.VP.dl);
-                statement.setDouble(22, message.VP.odo);
-                statement.setBoolean(23, safeParseBoolean(message.VP.drst));
-                statement.setDate(24, message.VP.oday);
-                statement.setInt(25, message.VP.jrn);
-                statement.setInt(26, message.VP.line);
-                statement.setTime(27, safeParseTime(message.VP.start));
+
+                setNullable(16, message.VP.spd, Types.DOUBLE, statement);
+                setNullable(17, message.VP.hdg, Types.DOUBLE, statement);
+                setNullable(18, message.VP.lat, Types.DOUBLE, statement);
+                setNullable(19, message.VP.longitude, Types.DOUBLE, statement);
+                setNullable(20, message.VP.acc, Types.DOUBLE, statement);
+                setNullable(21, message.VP.dl, Types.INTEGER, statement);
+                setNullable(22, message.VP.odo, Types.DOUBLE, statement);
+                setNullable(23, safeParseBoolean(message.VP.drst), Types.BOOLEAN, statement);
+                setNullable(24, message.VP.oday, Types.DATE, statement);
+                setNullable(25, message.VP.jrn, Types.INTEGER, statement);
+                setNullable(26, message.VP.line, Types.INTEGER, statement);
+                setNullable(27, safeParseTime(message.VP.start), Types.TIME, statement);
 
                 statement.addBatch();
             }
@@ -106,6 +110,34 @@ public class QueueWriter {
         finally {
             long elapsed = System.currentTimeMillis() - startTime;
             log.info("Total insert time: {} ms", elapsed);
+        }
+    }
+
+    private void setNullable(int index, Object value, int jdbcType, PreparedStatement statement) throws SQLException {
+        if (value == null) {
+            statement.setNull(index, jdbcType);
+        }
+        else {
+            //This is just awful but Postgres driver does not support setObject(value, type);
+            //Leaving null values not set is also not an option.
+            switch (jdbcType) {
+                case Types.BOOLEAN: statement.setBoolean(index, (Boolean)value);
+                    break;
+                case Types.INTEGER: statement.setInt(index, (Integer) value);
+                    break;
+                case Types.BIGINT: statement.setLong(index, (Long)value);
+                    break;
+                case Types.DOUBLE: statement.setDouble(index, (Double) value);
+                    break;
+                case Types.DATE: statement.setDate(index, (Date)value);
+                    break;
+                case Types.TIME: statement.setTime(index, (Time)value);
+                    break;
+                case Types.VARCHAR: statement.setString(index, (String)value); //Not sure if this is correct, field in schema is TEXT
+                    break;
+                default: log.error("Invalid jdbc type, bug in the app! {}", jdbcType);
+                    break;
+            }
         }
     }
 
