@@ -23,6 +23,10 @@ PUBLISH_PORTS='54321:5432'
 docker stop $CONTAINER_NAME
 docker rm $CONTAINER_NAME
 
+# TODO consider increasing maintenance_work_mem and max_wal_size.
+# see https://www.postgresql.org/docs/10/populate.html
+
+
 docker run \
     --detach \
     --restart unless-stopped \

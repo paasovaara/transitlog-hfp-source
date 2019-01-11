@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 
 public class MessageProcessor implements IMqttMessageHandler {
@@ -46,6 +47,8 @@ public class MessageProcessor implements IMqttMessageHandler {
         //queue.add(message);
         if (queue.size() % 1000 == 0) {
             log.debug("Got messages: " + queue.size());
+            writer.write(queue);
+            queue.clear();
             //log.info(new String(message.getPayload()));
 
 
