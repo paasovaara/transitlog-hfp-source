@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import java.sql.*;
 import java.text.NumberFormat;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.List;
 import static java.sql.Types.*;
@@ -80,7 +81,7 @@ public class QueueWriter {
                 setNullable(12, message.VP.oper, Types.INTEGER, statement);
 
                 statement.setInt(13, message.VP.veh);
-                statement.setTimestamp(14, java.sql.Timestamp.valueOf(LocalDateTime.now(ZoneId.of("UTC")))); //TODO get from payload
+                statement.setTimestamp(14, safeParseTimestamp(message.VP.tst));
                 statement.setLong(15, message.VP.tsi);
 
                 setNullable(16, message.VP.spd, Types.DOUBLE, statement);
@@ -171,6 +172,21 @@ public class QueueWriter {
             }
             catch (Exception e) {
                 log.error("Failed to convert {} to java.sql.Time", time);
+                return null;
+            }
+        }
+    }
+
+    static Timestamp safeParseTimestamp(String dt) {
+        if (dt == null)
+            return null;
+        else {
+            try {
+                OffsetDateTime offsetDt = OffsetDateTime.parse(dt);
+                return new Timestamp(offsetDt.toEpochSecond() * 1000L);
+            }
+            catch (Exception e) {
+                log.error("Failed to convert {} to java.sql.Timestamp", dt);
                 return null;
             }
         }
