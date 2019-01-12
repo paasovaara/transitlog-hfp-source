@@ -13,13 +13,11 @@ PUBLISH_PORTS='9042:9042'
 docker stop $CONTAINER_NAME
 docker rm $CONTAINER_NAME
 
-docker run --name "${CONTAINER_NAME}" -d --publish "${PUBLISH_PORTS}" "${IMAGE_NAME}"
+#docker run --name "${CONTAINER_NAME}" -d --publish "${PUBLISH_PORTS}" "${IMAGE_NAME}"
 
-#docker run \
-#    --detach \
-#    --restart unless-stopped \
-#    --name "${CONTAINER_NAME}" \
-#    --publish "${PUBLISH_PORTS}" \
-#    --volume "${HOST_DATA_DIR}:${CONTAINER_DATA_DIR}" \
-#    "${IMAGE_NAME}" \
-#    "${BIN_CMD}"
+docker run \
+    --detach \
+    --name "${CONTAINER_NAME}" \
+    --publish "${PUBLISH_PORTS}" \
+    --volume "${HOST_DATA_DIR}:${CONTAINER_DATA_DIR}" \
+    "${IMAGE_NAME}"
