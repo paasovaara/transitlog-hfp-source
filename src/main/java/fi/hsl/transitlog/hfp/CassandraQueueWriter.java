@@ -15,12 +15,14 @@ public class CassandraQueueWriter implements IQueueWriter {
     Session session;
     PreparedStatement preparedStatement;
 
-    public CassandraQueueWriter(String host, Integer port) {
-        CassandraConnector connector = new CassandraConnector();
-        connector.connect(host, port);
-        session = connector.getSession();
+    private CassandraQueueWriter(Session session) {
         preparedStatement = session.prepare(createInsertStatement());
+    }
 
+    public static CassandraQueueWriter newInstance(String host, Integer port, String keyspace) throws Exception {
+        CassandraConnector connector = new CassandraConnector();
+        connector.connect(host, port, keyspace);
+        return new CassandraQueueWriter(connector.getSession());
     }
 
     private static String createInsertStatement() {
@@ -114,14 +116,14 @@ public class CassandraQueueWriter implements IQueueWriter {
 
         private Session session;
 
-        public void connect(String node, Integer port) {
+        public void connect(String node, Integer port, String keyspace) throws Exception {
             Cluster.Builder b = Cluster.builder().addContactPoint(node);
             if (port != null) {
                 b.withPort(port);
             }
             cluster = b.build();
 
-            session = cluster.connect();
+            session = cluster.connect(keyspace);
         }
 
         public Session getSession() {

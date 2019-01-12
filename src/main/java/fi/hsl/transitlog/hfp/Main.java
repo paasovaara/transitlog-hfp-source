@@ -62,7 +62,8 @@ public class Main {
         try {
             app = MqttApplication.newInstance(mqttConfig);
 
-            QueueWriter writer = QueueWriter.newInstance(config);
+            //QueueWriter writer = QueueWriter.newInstance(config);
+            IQueueWriter writer = CassandraQueueWriter.newInstance("localhost", 9042, "vehicles");
             MessageProcessor processor = MessageProcessor.newInstance(app, writer);
             log.info("Starting to process messages");
         }
