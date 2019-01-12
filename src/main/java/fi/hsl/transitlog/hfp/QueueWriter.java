@@ -16,9 +16,11 @@ public class QueueWriter {
     private static final Logger log = LoggerFactory.getLogger(QueueWriter.class);
 
     Connection connection;
+    PreparedStatement statement;
 
-    private QueueWriter(Connection conn) {
+    private QueueWriter(Connection conn, PreparedStatement statement) {
         connection = conn;
+        this.statement = statement;
     }
 
     public static QueueWriter newInstance(Config config) throws Exception {
@@ -28,12 +30,14 @@ public class QueueWriter {
 
         log.info("Connecting to the database with connection string " + connectionString);
         Connection conn = DriverManager.getConnection(connectionString, user, password);
+        String queryString = createInsertStatement();
+        PreparedStatement statement = conn.prepareStatement(queryString);
         conn.setAutoCommit(false); // we're doing batch inserts so no auto commit
         log.info("Connection success");
-        return new QueueWriter(conn);
+        return new QueueWriter(conn, statement);
     }
 
-    private String createInsertStatement() {
+    private static String createInsertStatement() {
         return new StringBuffer()
                 .append("INSERT INTO VEHICLES (")
                 .append("received_at, topic_prefix, topic_version,")
@@ -60,9 +64,7 @@ public class QueueWriter {
         //https://jdbc.postgresql.org/documentation/publicapi/org/postgresql/copy/CopyManager.html
 
         long startTime = System.currentTimeMillis();
-        String queryString = createInsertStatement();
-        try (PreparedStatement statement = connection.prepareStatement(queryString)) {
-
+        try {
             for (HfpMessage message: messages) {
                 int index = 1;
                 statement.setTimestamp(index++, java.sql.Timestamp.valueOf(LocalDateTime.now(ZoneId.of("UTC"))));
