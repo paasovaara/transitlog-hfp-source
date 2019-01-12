@@ -46,6 +46,12 @@
         </dependency>
 
         <dependency>
+            <groupId>com.datastax.cassandra</groupId>
+            <artifactId>cassandra-driver-core</artifactId>
+            <version>3.6.0</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.dslplatform</groupId>
             <artifactId>dsl-json-java8</artifactId>
             <version>1.8.4</version>
