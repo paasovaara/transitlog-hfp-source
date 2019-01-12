@@ -64,38 +64,38 @@ public class QueueWriter {
         try (PreparedStatement statement = connection.prepareStatement(queryString)) {
 
             for (HfpMessage message: messages) {
-                //DEBUG hardcode stuff we don't yet parse
-                statement.setTimestamp(1, java.sql.Timestamp.valueOf(LocalDateTime.now(ZoneId.of("UTC"))));
-                statement.setString(2,"topic_prefix");
-                statement.setString(3,"topic_version");
-                statement.setString(4, HfpMetadata.JourneyType.journey.toString());
-                statement.setBoolean(5,true);
-                statement.setString(6, HfpMetadata.TransportMode.bus.toString());
-                statement.setInt(7, 0);
-                statement.setInt(8, 1234);
-                statement.setString(9, "1234");
+                int index = 1;
+                statement.setTimestamp(index++, java.sql.Timestamp.valueOf(LocalDateTime.now(ZoneId.of("UTC"))));
+                statement.setString(index++,"topic_prefix");
+                statement.setString(index++,"topic_version");
+                statement.setString(index++, HfpMetadata.JourneyType.journey.toString());
+                statement.setBoolean(index++,true);
+                statement.setString(index++, HfpMetadata.TransportMode.bus.toString());
+                statement.setInt(index++, 0);
+                statement.setInt(index++, 1234);
+                statement.setString(index++, "1234");
 
                 //From payload:
-                setNullable(10, message.VP.desi, Types.VARCHAR, statement);
-                setNullable(11, safeParseInt(message.VP.dir), Types.INTEGER, statement);
-                setNullable(12, message.VP.oper, Types.INTEGER, statement);
+                setNullable(index++, message.VP.desi, Types.VARCHAR, statement);
+                setNullable(index++, safeParseInt(message.VP.dir), Types.INTEGER, statement);
+                setNullable(index++, message.VP.oper, Types.INTEGER, statement);
 
-                statement.setInt(13, message.VP.veh);
-                statement.setTimestamp(14, safeParseTimestamp(message.VP.tst));
-                statement.setLong(15, message.VP.tsi);
+                statement.setInt(index++, message.VP.veh);
+                statement.setTimestamp(index++, safeParseTimestamp(message.VP.tst));
+                statement.setLong(index++, message.VP.tsi);
 
-                setNullable(16, message.VP.spd, Types.DOUBLE, statement);
-                setNullable(17, message.VP.hdg, Types.DOUBLE, statement);
-                setNullable(18, message.VP.lat, Types.DOUBLE, statement);
-                setNullable(19, message.VP.longitude, Types.DOUBLE, statement);
-                setNullable(20, message.VP.acc, Types.DOUBLE, statement);
-                setNullable(21, message.VP.dl, Types.INTEGER, statement);
-                setNullable(22, message.VP.odo, Types.DOUBLE, statement);
-                setNullable(23, safeParseBoolean(message.VP.drst), Types.BOOLEAN, statement);
-                setNullable(24, message.VP.oday, Types.DATE, statement);
-                setNullable(25, message.VP.jrn, Types.INTEGER, statement);
-                setNullable(26, message.VP.line, Types.INTEGER, statement);
-                setNullable(27, safeParseTime(message.VP.start), Types.TIME, statement);
+                setNullable(index++, message.VP.spd, Types.DOUBLE, statement);
+                setNullable(index++, message.VP.hdg, Types.DOUBLE, statement);
+                setNullable(index++, message.VP.lat, Types.DOUBLE, statement);
+                setNullable(index++, message.VP.longitude, Types.DOUBLE, statement);
+                setNullable(index++, message.VP.acc, Types.DOUBLE, statement);
+                setNullable(index++, message.VP.dl, Types.INTEGER, statement);
+                setNullable(index++, message.VP.odo, Types.DOUBLE, statement);
+                setNullable(index++, safeParseBoolean(message.VP.drst), Types.BOOLEAN, statement);
+                setNullable(index++, message.VP.oday, Types.DATE, statement);
+                setNullable(index++, message.VP.jrn, Types.INTEGER, statement);
+                setNullable(index++, message.VP.line, Types.INTEGER, statement);
+                setNullable(index++, safeParseTime(message.VP.start), Types.TIME, statement);
 
                 statement.addBatch();
             }
