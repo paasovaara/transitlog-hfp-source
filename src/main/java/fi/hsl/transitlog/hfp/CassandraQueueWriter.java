@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 
-public class CassandraQueueWriter {
+public class CassandraQueueWriter implements IQueueWriter {
     private static final Logger log = LoggerFactory.getLogger(CassandraQueueWriter.class);
 
     Session session;

@@ -12,7 +12,7 @@ import java.time.ZoneId;
 import java.util.List;
 import static java.sql.Types.*;
 
-public class QueueWriter {
+public class QueueWriter implements IQueueWriter {
     private static final Logger log = LoggerFactory.getLogger(QueueWriter.class);
 
     Connection connection;

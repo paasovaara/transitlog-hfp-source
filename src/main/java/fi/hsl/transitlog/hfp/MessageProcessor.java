@@ -19,14 +19,14 @@ public class MessageProcessor implements IMqttMessageHandler {
     final ArrayList<HfpMessage> queue;
     final int QUEUE_MAX_SIZE = 100000;
     final MessageParser parser = MessageParser.newInstance();
-    final QueueWriter writer;
+    final IQueueWriter writer;
 
-    private MessageProcessor(QueueWriter writer) {
+    private MessageProcessor(IQueueWriter writer) {
         queue = new ArrayList<>(QUEUE_MAX_SIZE);
         this.writer = writer;
     }
 
-    public static MessageProcessor newInstance(MqttApplication app, QueueWriter writer) throws Exception {
+    public static MessageProcessor newInstance(MqttApplication app, IQueueWriter writer) throws Exception {
         MessageProcessor processor = new MessageProcessor(writer);
         log.info("MessageProcessor subscribing to MQTT Application");
         app.subscribe(processor);
