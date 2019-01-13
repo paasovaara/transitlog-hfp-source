@@ -7,7 +7,6 @@ USE vehicles;
 -- CREATE TYPE TRANSPORT_MODE AS ENUM ('bus', 'train', 'tram', 'metro', 'ferry');
 
 CREATE TABLE vehicles (
-    id                 BIGINT PRIMARY KEY, --required in cassandra. we could also use multiple columns as pk
     received_at        TIMESTAMP,
     topic_prefix       TEXT,
     topic_version      TEXT,
@@ -42,8 +41,9 @@ CREATE TABLE vehicles (
     oday               DATE,
     jrn                SMALLINT,
     line               SMALLINT,
-    start              TIME
-);
+    start              TIME,
+    PRIMARY KEY ((route_id, direction_id), journey_start_time)
+) WITH CLUSTERING ORDER BY (journey_start_time ASC);
 
 
 --GRANT INSERT ON TABLE vehicles TO hfp_writer;
