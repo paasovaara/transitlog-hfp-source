@@ -42,8 +42,10 @@ CREATE TABLE vehicles (
     jrn                SMALLINT,
     line               SMALLINT,
     start              TIME,
-    PRIMARY KEY ((route_id, direction_id), journey_start_time)
-) WITH CLUSTERING ORDER BY (journey_start_time ASC);
+    PRIMARY KEY (veh)
+);
+--    PRIMARY KEY ((route_id, direction_id), journey_start_time)
+--) WITH CLUSTERING ORDER BY (journey_start_time ASC);
 
 
 --GRANT INSERT ON TABLE vehicles TO hfp_writer;

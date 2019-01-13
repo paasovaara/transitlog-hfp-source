@@ -16,7 +16,9 @@ public class CassandraQueueWriter implements IQueueWriter {
     PreparedStatement preparedStatement;
 
     private CassandraQueueWriter(Session session) {
+        this.session = session;
         preparedStatement = session.prepare(createInsertStatement());
+        log.info("Cassandra writer created");
     }
 
     public static CassandraQueueWriter newInstance(String host, Integer port, String keyspace) throws Exception {
@@ -64,14 +66,14 @@ public class CassandraQueueWriter implements IQueueWriter {
                 statement.setString(index++, HfpMetadata.JourneyType.journey.toString());
                 statement.setBool(index++,true);
                 statement.setString(index++, HfpMetadata.TransportMode.bus.toString());
-                statement.setInt(index++, 0);
+                statement.setShort(index++, (short)0);
                 statement.setInt(index++, 1234);
                 statement.setString(index++, "1234");
 
                 //From payload:
                 statement.setString(index++, message.VP.desi);
-                statement.setInt(index++, QueueWriter.safeParseInt(message.VP.dir));
-                statement.setInt(index++, message.VP.oper);
+                statement.setShort(index++, safeParseShort(message.VP.dir));
+                statement.setShort(index++, message.VP.oper);
                 //setNullable(index++, message.VP.desi, Types.VARCHAR, statement);
                 //setNullable(index++, safeParseInt(message.VP.dir), Types.INTEGER, statement);
                 //setNullable(index++, message.VP.oper, Types.INTEGER, statement);
@@ -97,7 +99,6 @@ public class CassandraQueueWriter implements IQueueWriter {
 */
                 batchStmt.add(statement);
             }
-            //session.execute(statement);
             session.execute(batchStmt);
         }
         catch (Exception e) {
@@ -109,6 +110,21 @@ public class CassandraQueueWriter implements IQueueWriter {
             log.info("Total insert time: {} ms", elapsed);
         }
     }
+
+    static Short safeParseShort(String n) {
+        if (n == null || n.isEmpty())
+            return null;
+        else {
+            try {
+                return Short.parseShort(n);
+            }
+            catch (NumberFormatException e) {
+                log.error("Failed to convert {} to short", n);
+                return null;
+            }
+        }
+    }
+
 
     public static class CassandraConnector {
 

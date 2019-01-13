@@ -27,7 +27,7 @@ public class HfpMessage {
 
         public String dir;
 
-        public Integer oper;
+        public Short oper;
 
         public Integer veh;
 
